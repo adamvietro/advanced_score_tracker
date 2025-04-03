@@ -10,6 +10,8 @@ defmodule AdvancedScoreTracker do
     I want to be able to store the needed values in a text file on the computer
   """
 
+  use Agent
+
   @valid_player %{
     ping_pong: 0,
     rock_paper_scissors: 0,
@@ -17,7 +19,7 @@ defmodule AdvancedScoreTracker do
   }
 
   @spec start_link(atom()) :: {:error, any()} | {:ok, pid()}
-  def start_link(player) do
+  def start_link(player \\ :player) do
     Agent.start_link(fn ->
       %{
         player => @valid_player,
@@ -32,13 +34,11 @@ defmodule AdvancedScoreTracker do
     Agent.update(pid, fn state ->
       case state[player] do
         nil ->
-          state = put_in(state, [player], @valid_player)
-          state = put_in(state, [player, game], score)
-          IO.inspect(state, label: "new")
+          put_in(state, [player], @valid_player)
+          |> put_in([player, game], score)
 
         _ ->
-          state = update_in(state, [player, game], &(&1 + score))
-          IO.inspect(state, label: "exists")
+          update_in(state, [player, game], &(&1 + score))
       end
     end)
   end
@@ -52,22 +52,17 @@ defmodule AdvancedScoreTracker do
   def new(pid, player, game) do
     Agent.update(pid, fn state ->
       recent_score = state[player][game]
-      IO.inspect(recent_score, label: "recent score")
       # Update the history
       case state[game][player] do
         nil ->
-          state = put_in(state, [game, player], [recent_score])
-          IO.inspect(state, label: "new")
+          put_in(state, [game, player], [recent_score])
           # Set game score back to 0
-          state = update_in(state, [player, game], fn _score -> 0 end)
-          IO.inspect(state, label: "back to 0")
+          |> update_in([player, game], fn _score -> 0 end)
 
         _ ->
-          state = update_in(state, [game, player], &[recent_score | &1])
-          IO.inspect(state, label: "exists")
+          update_in(state, [game, player], &[recent_score | &1])
           # Set game score back to 0
-          state = update_in(state, [player, game], fn _score -> 0 end)
-          IO.inspect(state, label: "back to 0")
+          |> update_in([player, game], fn _score -> 0 end)
       end
     end)
   end
