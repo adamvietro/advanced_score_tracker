@@ -9,9 +9,8 @@ defmodule AdvancedScoreTracker.Application do
   def start(_type, _args) do
     children = [
       # Starts a worker by calling: AdvancedScoreTracker.Worker.start_link(arg)
-      # {AdvancedScoreTracker.init(nil), nil}
-      # {AdvancedScoreTracker.Workers.StartLink, name: NewPlayer}
-      AdvancedScoreTracker.start_link()
+      # {AdvancedScoreTracker.Worker, arg}
+      AdvancedScoreTracker
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

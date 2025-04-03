@@ -27,11 +27,11 @@ defmodule AdvancedScoreTracker do
         rock_paper_scissors: %{},
         rubik_cube: %{}
       }
-    end)
+    end, name: __MODULE__)
   end
 
-  def add(pid, player, game, score) do
-    Agent.update(pid, fn state ->
+  def add(player, game, score) do
+    Agent.update(__MODULE__, fn state ->
       case state[player] do
         nil ->
           put_in(state, [player], @valid_player)
@@ -43,14 +43,14 @@ defmodule AdvancedScoreTracker do
     end)
   end
 
-  def get(pid, player, game) do
-    Agent.get(pid, fn state ->
+  def get(player, game) do
+    Agent.get(__MODULE__, fn state ->
       state[player][game]
     end)
   end
 
-  def new(pid, player, game) do
-    Agent.update(pid, fn state ->
+  def new(player, game) do
+    Agent.update(__MODULE__, fn state ->
       recent_score = state[player][game]
       # Update the history
       case state[game][player] do
@@ -67,14 +67,14 @@ defmodule AdvancedScoreTracker do
     end)
   end
 
-  def history(pid, player, game) do
-    Agent.get(pid, fn state ->
+  def history(player, game) do
+    Agent.get(__MODULE__, fn state ->
       state[game][player]
     end)
   end
 
-  def high_score(pid, player, game) do
-    Agent.get(pid, fn state ->
+  def high_score(player, game) do
+    Agent.get(__MODULE__, fn state ->
       Enum.max(state[game][player])
     end)
   end
