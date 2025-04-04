@@ -12,6 +12,7 @@ defmodule AdvancedScoreTracker do
 
   use Agent
 
+  @name __MODULE__
   @valid_player %{
     ping_pong: 0,
     rock_paper_scissors: 0,
@@ -19,19 +20,23 @@ defmodule AdvancedScoreTracker do
   }
 
   @spec start_link(atom()) :: {:error, any()} | {:ok, pid()}
-  def start_link(player \\ :player) do
-    Agent.start_link(fn ->
-      %{
-        player => @valid_player,
-        ping_pong: %{},
-        rock_paper_scissors: %{},
-        rubik_cube: %{}
-      }
-    end, name: __MODULE__)
+  def start_link(opts \\ []) do
+    opts = Keyword.put_new(opts, :name, @name)
+
+    Agent.start_link(
+      fn ->
+        %{
+          ping_pong: %{},
+          rock_paper_scissors: %{},
+          rubik_cube: %{}
+        }
+      end,
+      opts
+    )
   end
 
-  def add(player, game, score) do
-    Agent.update(__MODULE__, fn state ->
+  def add(player, game, score, name \\ @name) do
+    Agent.update(name, fn state ->
       case state[player] do
         nil ->
           put_in(state, [player], @valid_player)
@@ -43,14 +48,14 @@ defmodule AdvancedScoreTracker do
     end)
   end
 
-  def get(player, game) do
-    Agent.get(__MODULE__, fn state ->
+  def get(player, game, name \\ @name) do
+    Agent.get(name, fn state ->
       state[player][game]
     end)
   end
 
-  def new(player, game) do
-    Agent.update(__MODULE__, fn state ->
+  def new(player, game, name \\ @name) do
+    Agent.update(name, fn state ->
       recent_score = state[player][game]
       # Update the history
       case state[game][player] do
@@ -67,14 +72,14 @@ defmodule AdvancedScoreTracker do
     end)
   end
 
-  def history(player, game) do
-    Agent.get(__MODULE__, fn state ->
+  def history(player, game, name \\ @name) do
+    Agent.get(name, fn state ->
       state[game][player]
     end)
   end
 
-  def high_score(player, game) do
-    Agent.get(__MODULE__, fn state ->
+  def high_score(player, game, name \\ @name) do
+    Agent.get(name, fn state ->
       Enum.max(state[game][player])
     end)
   end
