@@ -4,11 +4,11 @@ defmodule AdvancedScoreTrackerTest do
   doctest AdvancedScoreTracker
 
   setup do
-    AdvancedScoreTracker.start_link()
+    AdvancedScoreTracker.start_link(__MODULE__)
     :ok
   end
 
-  # describe "Test Cases" do
+  describe "Test Cases" do
     test "add/3" do
       assert :ok == AdvancedScoreTracker.add(:player1, :ping_pong, 10)
     end
@@ -59,5 +59,5 @@ defmodule AdvancedScoreTrackerTest do
 
       assert 20 == AdvancedScoreTracker.high_score(:player2, :ping_pong)
     end
-  # end
+  end
 end
